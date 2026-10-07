@@ -1,0 +1,14 @@
+syntax = "proto3";
+package grpc;
+option go_package = "chitchat/grpc/proto";
+
+message JoinRequest {}
+message JoinResponse {}
+
+message LeaveRequest {}
+message LeaveResponse {}
+
+service ChitChatService {
+    rpc Join(JoinRequest) returns (JoinResponse) {};
+    rpc Leave(LeaveRequest) returns (LeaveResponse) {};
+}
