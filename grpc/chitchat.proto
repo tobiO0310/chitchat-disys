@@ -2,13 +2,29 @@ syntax = "proto3";
 package grpc;
 option go_package = "chitchat/grpc/proto";
 
-message JoinRequest {}
-message JoinResponse {}
-
-message LeaveRequest {}
-message LeaveResponse {}
+// type 0 = message
+// type 1 = leave
+enum MessageType {
+    MESSAGE_TYPE_UNSPECIFIED = 0;
+    MESSAGE_TYPE_JOIN = 1;
+    MESSAGE_TYPE_MESSAGE = 2;
+    MESSAGE_TYPE_LEAVE = 3;
+}
+message GetStreamRequest {
+    MessageType type = 1;
+    optional string message = 2;
+}
+enum ResponseType {
+    RESPONSE_TYPE_UNSPECIFIED = 0;
+    RESPONSE_TYPE_MESSAGE = 1;
+    RESPONSE_TYPE_LEAVE_ACCEPT = 2;
+}
+message GetStreamResponse {
+    ResponseType type = 1;
+    optional string message = 2;
+    optional string author = 3;
+}
 
 service ChitChatService {
-    rpc Join(JoinRequest) returns (JoinResponse) {};
-    rpc Leave(LeaveRequest) returns (LeaveResponse) {};
+    rpc GetStream(stream GetStreamRequest) returns (stream GetStreamResponse) {};
 }
