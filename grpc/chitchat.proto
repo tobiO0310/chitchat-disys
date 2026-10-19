@@ -2,8 +2,6 @@ syntax = "proto3";
 package grpc;
 option go_package = "chitchat/grpc/proto";
 
-// type 0 = message
-// type 1 = leave
 enum MessageType {
     MESSAGE_TYPE_UNSPECIFIED = 0;
     MESSAGE_TYPE_JOIN = 1;
@@ -22,7 +20,9 @@ enum ResponseType {
 message GetStreamResponse {
     ResponseType type = 1;
     optional string message = 2;
-    optional string author = 3;
+    optional string author_name = 3;
+    optional uint64 author_id = 4;
+    uint64 timestamp = 5;
 }
 
 service ChitChatService {

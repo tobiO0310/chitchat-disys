@@ -1,10 +1,10 @@
-module server
+module chitchat
 
 go 1.27.1
 
-require(
-    github.com/golang/protobuf v1.5.4
-    google.golang.org/grpc v1.84.0
+require (
+	github.com/golang/protobuf v1.5.4
+	google.golang.org/grpc v1.84.0
 )
 
 require (
