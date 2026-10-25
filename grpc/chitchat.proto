@@ -12,17 +12,11 @@ message GetStreamRequest {
     MessageType type = 1;
     optional string message = 2;
 }
-enum ResponseType {
-    RESPONSE_TYPE_UNSPECIFIED = 0;
-    RESPONSE_TYPE_MESSAGE = 1;
-    RESPONSE_TYPE_LEAVE_ACCEPT = 2;
-}
 message GetStreamResponse {
-    ResponseType type = 1;
-    optional string message = 2;
-    optional string author_name = 3;
-    optional uint64 author_id = 4;
-    uint64 timestamp = 5;
+    optional string message = 1;
+    optional string author_name = 2;
+    optional uint64 author_id = 3;
+    uint64 timestamp = 4;
 }
 
 service ChitChatService {
