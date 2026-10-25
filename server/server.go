@@ -2,11 +2,14 @@ package main
 
 import (
 	proto "chitchat/grpc"
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net"
+	"os"
+	"os/signal"
 	"sync"
 
 	"google.golang.org/grpc"
@@ -34,7 +37,7 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 	go func() {
 		for {
 			req, err := stream.Recv()
-			if errors.Is(err, io.EOF) {
+			if errors.Is(err, io.EOF) || req == nil {
 				return
 			}
 
@@ -47,6 +50,7 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 					name = *req.Message
 					s.RWMutex.Lock()
 					s.timestamp += 1
+					log.Printf("[SERVER] Participant '%s' (id: %d) joined Chit Chat at logical time %d\n", name, id, s.timestamp)
 					s.messageChannel <- Message{
 						message:     fmt.Sprintf("Participant %s joined Chit Chat at logical time %d", name, s.timestamp),
 						author_name: "Server",
@@ -63,6 +67,7 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 					}
 					s.RWMutex.Lock()
 					s.timestamp += 1
+					log.Printf("[SERVER] Got message from '%s' (id: %d) at logical time %d: %s\n", name, id, s.timestamp, *req.Message)
 					s.messageChannel <- Message{
 						message:     *req.Message,
 						author_name: name,
@@ -80,6 +85,7 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 					}
 					s.RWMutex.Lock()
 					s.timestamp += 1
+					log.Printf("[SERVER] Participant '%s' (id: %d) left Chit Chat at logical time %d\n", name, id, s.timestamp)
 					s.messageChannel <- Message{
 						message:     fmt.Sprintf("Participant %s left Chit Chat at logical time %d", name, s.timestamp),
 						author_name: "Server",
@@ -129,8 +135,20 @@ func main() {
 	if err != nil {
 		log.Fatalf("[SERVER] failed to listen: %v\n", err)
 	} else {
-		log.Printf("[SERVER] server is listening on rpc://localhost:3000\n")
+		log.Printf("[SERVER]\tserver is listening on rpc://localhost:3000\n\t\t\t\tPress Ctrl+C to exit.\n")
 	}
+
+	go func() {
+		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	    defer stop()
+
+	    // Block until the context is canceled
+	    <-ctx.Done()
+
+	    fmt.Println("\n[SERVER] Interrupt received, shutting down gracefully...")
+		lis.Close()
+	}()
+
 	grpcServer := grpc.NewServer()
 	proto.RegisterChitChatServiceServer(grpcServer, newService())
 	grpcServer.Serve(lis)
