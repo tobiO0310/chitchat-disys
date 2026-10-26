@@ -36,7 +36,7 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 
 	go func() {
 		defer func() {
-			recover(); // make sure any panics are caught
+			recover() // make sure any panics are caught
 
 			// send leave message (if joined)
 			if name != "" {
@@ -51,7 +51,7 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 				}
 				s.RWMutex.Unlock()
 			}
-			close(vchan); // make outer goroutine close
+			close(vchan) // make outer goroutine close
 		}()
 		for {
 			req, err := stream.Recv()
@@ -151,12 +151,12 @@ func main() {
 
 	go func() {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	    defer stop()
+		defer stop()
 
-	    // Block until the context is canceled
-	    <-ctx.Done()
+		// Block until the context is canceled
+		<-ctx.Done()
 
-	    fmt.Println("\n[SERVER] Interrupt received, shutting down gracefully...")
+		fmt.Println("\n[SERVER] Interrupt received, shutting down gracefully...")
 		lis.Close()
 	}()
 
