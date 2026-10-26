@@ -110,12 +110,19 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 		c := s.Piper.Pipe()
 
 		for msg := range c {
-			stream.Send(&proto.GetStreamResponse{
-				Message:    &msg.message,
-				AuthorName: &msg.author_name,
-				AuthorId:   &msg.author_id,
-				Timestamp:  msg.timestamp,
-			})
+			select {
+			case _, ok := <-vchan:
+				if !ok {
+					return
+				}
+			default:
+				stream.Send(&proto.GetStreamResponse{
+					Message:    &msg.message,
+					AuthorName: &msg.author_name,
+					AuthorId:   &msg.author_id,
+					Timestamp:  msg.timestamp,
+				})
+			}
 		}
 	}()
 
