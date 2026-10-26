@@ -35,6 +35,24 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 	vchan := make(chan struct{})
 
 	go func() {
+		defer func() {
+			recover(); // make sure any panics are caught
+
+			// send leave message (if joined)
+			if name != "" {
+				s.RWMutex.Lock()
+				s.timestamp += 1
+				log.Printf("[SERVER] Participant '%s' (id: %d) left Chit Chat at logical time %d\n", name, id, s.timestamp)
+				s.messageChannel <- Message{
+					message:     fmt.Sprintf("Participant %s left Chit Chat at logical time %d", name, s.timestamp),
+					author_name: "Server",
+					author_id:   0,
+					timestamp:   s.timestamp,
+				}
+				s.RWMutex.Unlock()
+			}
+			close(vchan); // make outer goroutine close
+		}()
 		for {
 			req, err := stream.Recv()
 			if errors.Is(err, io.EOF) || req == nil {
@@ -79,20 +97,6 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 				}
 			case proto.MessageType_MESSAGE_TYPE_LEAVE:
 				{
-					defer close(vchan)
-					if name == "" {
-						return
-					}
-					s.RWMutex.Lock()
-					s.timestamp += 1
-					log.Printf("[SERVER] Participant '%s' (id: %d) left Chit Chat at logical time %d\n", name, id, s.timestamp)
-					s.messageChannel <- Message{
-						message:     fmt.Sprintf("Participant %s left Chit Chat at logical time %d", name, s.timestamp),
-						author_name: "Server",
-						author_id:   0,
-						timestamp:   s.timestamp,
-					}
-					s.RWMutex.Unlock()
 					return
 				}
 
