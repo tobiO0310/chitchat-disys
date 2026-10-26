@@ -1,0 +1,24 @@
+2026/10/26 09:07:18 [SERVER]	server is listening on rpc://localhost:3000
+				Press Ctrl+C to exit.
+2026/10/26 09:07:22 [CLIENT] Input your name: 
+2026/10/26 09:07:23 [CLIENT] Joining as 'B'
+2026/10/26 09:07:23 [CLIENT] Send messages on each line from now on (empty message = quit)
+2026/10/26 09:07:23 [SERVER] Participant 'B' (id: 1) joined Chit Chat at logical time 1
+2026/10/26 09:07:23 [CLIENT 'B'] Got message from 'Server' (id: 0) at logical time 1: Participant B joined Chit Chat at logical time 1
+2026/10/26 09:07:25 [CLIENT] Input your name: 
+2026/10/26 09:07:26 [CLIENT] Joining as 'C'
+2026/10/26 09:07:26 [CLIENT] Send messages on each line from now on (empty message = quit)
+2026/10/26 09:07:26 [SERVER] Participant 'C' (id: 2) joined Chit Chat at logical time 2
+2026/10/26 09:07:26 [CLIENT 'B'] Got message from 'Server' (id: 0) at logical time 2: Participant C joined Chit Chat at logical time 2
+2026/10/26 09:07:26 [CLIENT 'C'] Got message from 'Server' (id: 0) at logical time 2: Participant C joined Chit Chat at logical time 2
+2026/10/26 09:07:33 [SERVER] Got message from 'B' (id: 1) at logical time 3: Hello!
+2026/10/26 09:07:33 [CLIENT 'B'] Got message from 'B' (id: 1) at logical time 3: Hello!
+2026/10/26 09:07:33 [CLIENT 'C'] Got message from 'B' (id: 1) at logical time 3: Hello!
+2026/10/26 09:07:49 [SERVER] Got message from 'C' (id: 2) at logical time 4: Hi there!
+2026/10/26 09:07:49 [CLIENT 'C'] Got message from 'C' (id: 2) at logical time 4: Hi there!
+2026/10/26 09:07:49 [CLIENT 'B'] Got message from 'C' (id: 2) at logical time 4: Hi there!
+2026/10/26 09:07:57 [SERVER] Participant 'C' (id: 2) left Chit Chat at logical time 5
+2026/10/26 09:07:57 [CLIENT 'B'] Got message from 'Server' (id: 0) at logical time 5: Participant C left Chit Chat at logical time 5
+2026/10/26 09:08:00 [SERVER] Participant 'B' (id: 1) left Chit Chat at logical time 6
+
+[SERVER] Interrupt received, shutting down gracefully...
