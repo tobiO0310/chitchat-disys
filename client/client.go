@@ -33,28 +33,6 @@ func main() {
 
 	stream, err := client.GetStream(context.Background())
 
-	waitc := make(chan struct{})
-	go func() {
-		for {
-			in, err := stream.Recv()
-			if err == io.EOF {
-				// read done.
-				close(waitc)
-				return
-			}
-			if err != nil {
-				log.Fatalf("[CLIENT] Failed to receive a note : %v", err)
-			}
-			messages = append(messages, Message{
-				message:     *in.Message,
-				author_name: *in.AuthorName,
-				author_id:   *in.AuthorId,
-				timestamp:   in.Timestamp,
-			})
-			log.Printf("[CLIENT] Got message from '%s' (id: %d) at logical time %d: %s\n", *in.AuthorName, *in.AuthorId, in.Timestamp, *in.Message)
-		}
-	}()
-
 	reader := bufio.NewReader(os.Stdin)
 
 	log.Print("[CLIENT] Input your name: ")
@@ -65,6 +43,28 @@ func main() {
 		Type:    proto.MessageType_MESSAGE_TYPE_JOIN,
 		Message: &name,
 	})
+
+	waitc := make(chan struct{})
+	go func() {
+		for {
+			in, err := stream.Recv()
+			if err == io.EOF {
+				// read done.
+				close(waitc)
+				return
+			}
+			if err != nil {
+				log.Fatalf("[CLIENT '%s'] Failed to receive a note : %v", name, err)
+			}
+			messages = append(messages, Message{
+				message:     *in.Message,
+				author_name: *in.AuthorName,
+				author_id:   *in.AuthorId,
+				timestamp:   in.Timestamp,
+			})
+			log.Printf("[CLIENT '%s'] Got message from '%s' (id: %d) at logical time %d: %s\n", name, *in.AuthorName, *in.AuthorId, in.Timestamp, *in.Message)
+		}
+	}()
 
 	log.Println("[CLIENT] Send messages on each line from now on (empty message = quit)")
 	for {
