@@ -15,6 +15,8 @@ import (
 	"google.golang.org/grpc"
 )
 
+var SERVER_RESPECTS_CLIENT_TIMESTAMP = true
+
 type ChitChatService struct {
 	proto.UnimplementedChitChatServiceServer
 
@@ -84,6 +86,11 @@ func (s *ChitChatService) GetStream(stream grpc.BidiStreamingServer[proto.GetStr
 						break
 					}
 					s.RWMutex.Lock()
+					if SERVER_RESPECTS_CLIENT_TIMESTAMP {
+						s.timestamp = max(s.timestamp, req.Timestamp)
+					}
+					s.timestamp += 1 // got message
+					
 					s.timestamp += 1
 					log.Printf("[SERVER] Got message from '%s' (id: %d) at logical time %d: %s\n", name, id, s.timestamp, *req.Message)
 					s.messageChannel <- Message{

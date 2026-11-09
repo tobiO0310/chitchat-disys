@@ -11,6 +11,7 @@ enum MessageType {
 message GetStreamRequest {
     MessageType type = 1;
     optional string message = 2;
+    uint64 timestamp = 3;
 }
 message GetStreamResponse {
     optional string message = 1;

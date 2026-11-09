@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"sync"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -28,6 +29,9 @@ func main() {
 	defer conn.Close()
 
 	var messages []Message
+
+	timestamp := uint64(0)
+	var mutex sync.Mutex
 
 	client := proto.NewChitChatServiceClient(conn)
 
@@ -56,6 +60,10 @@ func main() {
 			if err != nil {
 				log.Fatalf("[CLIENT '%s'] Failed to receive a note : %v", name, err)
 			}
+			mutex.Lock()
+			defer mutex.Unlock()
+			timestamp = max(timestamp, in.Timestamp)
+			timestamp += 1
 			messages = append(messages, Message{
 				message:     *in.Message,
 				author_name: *in.AuthorName,
@@ -73,9 +81,13 @@ func main() {
 		if msg == "" {
 			break
 		}
+		mutex.Lock()
+		defer mutex.Unlock()
+		timestamp += 1
 		stream.Send(&proto.GetStreamRequest{
 			Type:    proto.MessageType_MESSAGE_TYPE_MESSAGE,
 			Message: &msg,
+			Timestamp: timestamp,
 		})
 	}
 
